@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
+const Register = require("./db/conn.js");
 
 app.use(express.static(path.join(__dirname, 'public')))
 
