@@ -22,7 +22,7 @@ app.get('/form',function(req,res){
 
 app.post('/form',async (req,res)=>{
     try {
-        console.log(req.body);
+        console.log(req.body.email);
         res.send(req.body);
     } catch (error) {
         console.log('err')
