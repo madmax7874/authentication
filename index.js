@@ -49,8 +49,7 @@ app.post('/login',async (req,res)=>{
         const passwordFromDB = data.password;
         const comparePassword =await brcypt.compare(password,passwordFromDB);
         console.log(comparePassword);
-    });
-    
+    });   
 })
 app.get('/login',(req,res)=>{
     res.render('login');
