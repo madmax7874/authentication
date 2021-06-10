@@ -1,8 +1,8 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-
 const mongoose = require('mongoose');
+const brcypt= require('bcrypt');
 const server = require('./config/db.js');
 const User = require('./models/user.js');
 
@@ -13,17 +13,22 @@ app.use(express.urlencoded({extended:true}));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
+async function securePassword(password){
+    const passwordHash= await brcypt.hash(password,10);
+    return passwordHash;
+}
 
 app.post('/',async (req,res)=>{
     console.log(req.body);
     res.send(req.body); 
     const {firstName, lastName, userName, email, password} = req.body;
+    const passwordHash =await securePassword(password);
     const user = await User.create({
         firstName: firstName,
         lastName: lastName,
         userName: userName,
         email: email,
-        password: password
+        password: passwordHash
     });    
     if(user){
         console.log(user)
@@ -33,7 +38,7 @@ app.post('/',async (req,res)=>{
 });
 
 app.get('/',(req,res)=>{
-    res.render('form');
+    res.render('signup');
 });
 
 app.listen(3000, function () {
