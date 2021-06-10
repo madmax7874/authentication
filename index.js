@@ -17,8 +17,11 @@ app.set('views', path.join(__dirname, '/views'));
 app.post('/',async (req,res)=>{
     console.log(req.body);
     res.send(req.body); 
-    const {email, password} = req.body;
+    const {firstName, lastName, userName, email, password} = req.body;
     const user = await User.create({
+        firstName: firstName,
+        lastName: lastName,
+        userName: userName,
         email: email,
         password: password
     });    
