@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const brcypt= require('bcrypt');
 const server = require('./config/db.js');
 const User = require('./models/user.js');
-const { log } = require('console');
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
@@ -24,13 +23,7 @@ app.post('/signup',async (req,res)=>{
     res.send(req.body); 
     const {firstName, lastName, userName, email, password} = req.body;
     const passwordHash =await securePassword(password);
-    const user = await User.create({
-        firstName: firstName,
-        lastName: lastName,
-        userName: userName,
-        email: email,
-        password: passwordHash
-    });    
+    const user = await User.create({firstName: firstName,lastName: lastName,userName: userName,email: email,password: passwordHash});
     if(user){
         console.log(user)
     }else{
@@ -40,6 +33,26 @@ app.post('/signup',async (req,res)=>{
 app.get('/signup',(req,res)=>{
     res.render('signup');
 });
+// app.post('/signup',async (req,res)=>{
+//     console.log(req.body);
+//     res.send(req.body); 
+//     const {firstName, lastName, userName, email, password} = req.body;
+//     const user = new User({
+//         firstName: firstName,
+//         lastName: lastName,
+//         userName: userName,
+//         email: email,
+//         password: password
+//     });    
+//     User.schema.pre("save",async function(next){
+//         console.log(this.password);
+//         this.password= brcyt.hash(this.password,10);
+//         console.log(this.password);
+//         next();
+//     })
+//     const userDatasaved= await user.save();   
+// });
+
 
 app.post('/login',async (req,res)=>{
     console.log(req.body);
