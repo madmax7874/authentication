@@ -38,14 +38,27 @@ app.get('/login',(req,res)=>{
 });
 app.post('/login',async (req,res)=>{
     const {email, password} = req.body;
-    await User.findOne({email:email}).then(async (data) => {
-        const comparePassword =await brcypt.compare(password,data.password);
-        if(comparePassword){
-            const token = generateToken(data._id)
-            res.cookie('nToken',token,{maxAge:36000000})
-            res.send(token);
-        }
-    });   
+    try {
+        await User.findOne({email:email}).then(async (data) => {
+            const comparePassword =await brcypt.compare(password,data.password);
+            if(comparePassword){
+                const token = generateToken(data._id)
+                res.cookie('nToken',token,{
+                    maxAge:36000000,
+                    httpOnly:true
+                })
+                res.send(token);
+            }
+            else{
+                const error = "Password incorrect";
+                res.render('error',{error});
+            }
+        })
+    } catch (e) {
+        const error = "Invalid email";
+        res.render('error',{error});
+    }
+    
 })
 
 function decodeToken(token){
