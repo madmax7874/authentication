@@ -30,7 +30,7 @@ app.post('/signup',async (req,res)=>{
     }else{
         console.log('no user');
     }
-    res.send(req.body); 
+    res.send(req.body);
 });
 
 app.get('/login',(req,res)=>{
@@ -43,35 +43,32 @@ app.post('/login',async (req,res)=>{
             const comparePassword =await brcypt.compare(password,data.password);
             if(comparePassword){
                 const token = generateToken(data._id)
-                res.cookie('nToken',token,{
-                    maxAge:36000000,
-                    httpOnly:true
-                })
-                res.send(token);
+                res.cookie('nToken',token,{maxAge:36000000,httpOnly:true})
+                console.log(token);
+                res.redirect('bye');
             }
             else{
                 const error = "Password incorrect";
                 res.render('error',{error});
             }
         })
-    } catch (e) {
+    }catch (e) {
         const error = "Invalid email";
         res.render('error',{error});
-    }
-    
+    }  
 })
-
-function decodeToken(token){
-    const decoded = jwt.verify(token, 'secretkey');
-    return decoded.id;
-}
 
 app.get('/bye',(req, res) => {  
     console.log(req.cookies.nToken);
-    const _id = decodeToken(req.cookies.nToken);
-    User.findOne({_id:_id}).then((data)=>{
-        res.json(data);
-    });
+    try {
+        const decoded = jwt.verify(req.cookies.nToken, 'secretkey');
+        User.findOne({_id:decoded.id}).then((data)=>{
+            res.json(data);
+        });
+    } catch (e) {
+        const error = "Please Login first";
+        res.render('error',{error});
+    }
 });
 
 app.get('/',(req,res)=>{
