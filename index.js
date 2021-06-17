@@ -24,13 +24,18 @@ app.post('/signup',async (req,res)=>{
     console.log(req.body);
     const {firstName, lastName, userName, email, password} = req.body;
     const passwordHash =await brcypt.hash(password,10);
-    const user = await User.create({firstName: firstName,lastName: lastName,userName: userName,email: email,password: passwordHash});
-    if(user){
-        console.log(user)
-    }else{
-        console.log('no user');
+    try {
+        const user = await User.create({firstName: firstName,lastName: lastName,userName: userName,email: email,password: passwordHash});
+        if(user){
+            console.log(user)
+        }else{
+            console.log('no user');
+        }
+        res.redirect('login');
+    } catch (e) {
+        const error = "EmailId already in use. Try entering another one!";
+        res.render('error',{error});
     }
-    res.send(req.body);
 });
 
 app.get('/login',(req,res)=>{
@@ -63,7 +68,7 @@ app.get('/bye',(req, res) => {
     try {
         const decoded = jwt.verify(req.cookies.nToken, 'secretkey');
         User.findOne({_id:decoded.id}).then((data)=>{
-            res.json(data);
+            res.render('bye');
         });
     } catch (e) {
         const error = "Please Login first";
