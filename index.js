@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser'); 
 const server = require('./config/db.js');
 const User = require('./models/user.js');
-const generateToken = require('./utils/generateToken.js')
+const generateToken = require('./utils/generateToken.js');
+const { log } = require('console');
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
@@ -18,7 +19,11 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
 app.get('/signup',(req,res)=>{
-    res.render('signup');
+    try {
+        res.render('signup');
+    } catch (error) {
+        res.sendStatus(403);
+    }
 });
 app.post('/signup',async (req,res)=>{
     console.log(req.body);
@@ -31,7 +36,7 @@ app.post('/signup',async (req,res)=>{
         }else{
             console.log('no user');
         }
-        res.redirect('login');
+        res.redirect('/login');
     } catch (e) {
         const error = "EmailId already in use. Try entering another one!";
         res.render('error',{error});
@@ -39,7 +44,11 @@ app.post('/signup',async (req,res)=>{
 });
 
 app.get('/login',(req,res)=>{
-    res.render('login');
+    try {
+        res.render('login');
+    } catch (error) {
+        res.sendStatus(403);
+    }
 });
 app.post('/login',async (req,res)=>{
     const {email, password} = req.body;
@@ -49,8 +58,7 @@ app.post('/login',async (req,res)=>{
             if(comparePassword){
                 const token = generateToken(data._id)
                 res.cookie('nToken',token,{maxAge:36000000,httpOnly:true})
-                console.log(token);
-                res.redirect('bye');
+                res.redirect('/bye');
             }
             else{
                 const error = "Password incorrect";
@@ -64,11 +72,10 @@ app.post('/login',async (req,res)=>{
 })
 
 app.get('/bye',(req, res) => {  
-    console.log(req.cookies.nToken);
     try {
         const decoded = jwt.verify(req.cookies.nToken, 'secretkey');
         User.findOne({_id:decoded.id}).then((data)=>{
-            res.render('bye');
+            res.render('bye',{data});
         });
     } catch (e) {
         const error = "Please Login first";
@@ -76,9 +83,22 @@ app.get('/bye',(req, res) => {
     }
 });
 
+app.get('/logout', (req, res) => {
+    res.clearCookie('nToken');
+    return res.redirect('/');
+  });
+
 app.get('/',(req,res)=>{
-    res.render('home');
+    try {
+        res.render('home');
+    } catch (error) {
+        res.sendStatus(403);
+    }
 });
+
+app.get('*',(req,res)=>{
+    res.sendStatus(404);
+})
 
 app.listen(3000, function () {
     console.log("Server has started on port 3000");
