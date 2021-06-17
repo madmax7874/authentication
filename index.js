@@ -9,6 +9,7 @@ const server = require('./config/db.js');
 const User = require('./models/user.js');
 const generateToken = require('./utils/generateToken.js');
 const { log } = require('console');
+const { postSignup } = require('./controllers/users.js');
 
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.json());
@@ -25,23 +26,7 @@ app.get('/signup',(req,res)=>{
         res.sendStatus(403);
     }
 });
-app.post('/signup',async (req,res)=>{
-    console.log(req.body);
-    const {firstName, lastName, userName, email, password} = req.body;
-    const passwordHash =await brcypt.hash(password,10);
-    try {
-        const user = await User.create({firstName: firstName,lastName: lastName,userName: userName,email: email,password: passwordHash});
-        if(user){
-            console.log(user)
-        }else{
-            console.log('no user');
-        }
-        res.redirect('/login');
-    } catch (e) {
-        const error = "EmailId already in use. Try entering another one!";
-        res.render('error',{error});
-    }
-});
+app.post('/signup', postSignup);
 
 app.get('/login',(req,res)=>{
     try {
