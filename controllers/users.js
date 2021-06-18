@@ -25,4 +25,37 @@ const postSignup = async (req,res)=>{
     }
 }
 
-module.exports = {postSignup};
+const postLogin = (req,res)=>{
+    try {
+        const {email, password} = req.body;
+        User.findOne({email:email}).then(async (data) => {
+            const comparePassword =await brcypt.compare(password,data.password);
+            if(comparePassword){
+                const token = generateToken(data._id)
+                res.cookie('nToken',token,{maxAge:36000000,httpOnly:true})
+                res.redirect('/bye');
+            }
+            else{
+                const error = "Password incorrect";
+                res.render('error',{error});
+            }
+        })
+    }catch (e) {
+        const error = "Invalid email";
+        res.render('error',{error});
+    }  
+}
+
+const byeRestricted = async (req, res) => {  
+    try {
+        const decoded = jwt.verify(req.cookies.nToken,  process.env.JWTKEY);
+        await User.findOne({_id:decoded.id}).then((data)=>{
+            res.render('bye',{data});
+        });
+    } catch (e) {
+        const error = "Please Login first";
+        res.render('error',{error});
+    }
+}
+
+module.exports = {postSignup,postLogin,byeRestricted};
