@@ -9,7 +9,7 @@ const server = require('./config/db.js');
 const User = require('./models/user.js');
 const generateToken = require('./utils/generateToken.js');
 const { log } = require('console');
-const { postSignup, postLogin, byeRestricted } = require('./controllers/users.js');
+const { postSignup, postLogin, byeRestricted, getSignup, getLogin, getLogout, getHome } = require('./controllers/users.js');
 require('dotenv').config()
 
 app.use(express.static(path.join(__dirname, 'public')))
@@ -20,38 +20,13 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
-app.get('/signup',(req,res)=>{
-    try {
-        res.render('signup');
-    } catch (error) {
-        res.sendStatus(403);
-    }
-});
+app.get('/signup', getSignup);
 app.post('/signup', postSignup);
-
-app.get('/login',(req,res)=>{
-    try {
-        res.render('login');
-    } catch (error) {
-        res.sendStatus(403);
-    }
-});
+app.get('/login', getLogin);
 app.post('/login', postLogin);
 app.get('/bye', byeRestricted);
-
-app.get('/logout', (req, res) => {
-    res.clearCookie('nToken');
-    return res.redirect('/');
-});
-
-app.get('/',(req,res)=>{
-    try {
-        res.render('home');
-    } catch (error) {
-        res.sendStatus(403);
-    }
-});
-
+app.get('/logout',getLogout);
+app.get('/',getHome);
 app.get('*',(req,res)=>{
     res.sendStatus(404);
 })

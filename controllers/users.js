@@ -48,7 +48,7 @@ const postLogin = (req,res)=>{
 
 const byeRestricted = async (req, res) => {  
     try {
-        const decoded = jwt.verify(req.cookies.nToken,  process.env.JWTKEY);
+        const decoded = jwt.verify(req.cookies.nToken, process.env.JWTKEY);
         await User.findOne({_id:decoded.id}).then((data)=>{
             res.render('bye',{data});
         });
@@ -58,4 +58,33 @@ const byeRestricted = async (req, res) => {
     }
 }
 
-module.exports = {postSignup,postLogin,byeRestricted};
+const getSignup = async(req,res)=>{
+    try {
+        res.render('signup');
+    } catch (error) {
+        res.sendStatus(403);
+    }
+}
+
+const getLogin = async (req,res)=>{
+    try {
+        res.render('login');
+    } catch (error) {
+        res.sendStatus(403);
+    }
+}
+
+const getLogout = async (req, res) => {
+    res.clearCookie('nToken');
+    return res.redirect('/');
+}
+
+const getHome = async (req,res)=>{
+    try {
+        res.render('home');
+    } catch (error) {
+        res.sendStatus(403);
+    }
+}
+
+module.exports = {postSignup, postLogin, byeRestricted, getSignup, getLogin, getLogout, getHome};
